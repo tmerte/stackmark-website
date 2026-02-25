@@ -1,26 +1,44 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-red: #F84438;
+  --color-brand-black: #000000;
+  --color-brand-white: #FFFFFF;
+  --color-gray-50: #808080;
+  --color-gray-20: #DDDDDD;
+  --color-gray-30: #BBBBBB;
+  --color-gray-70: #494949;
+  --color-neutral-10: #EFF0FA;
+  --color-dark-90: #151515;
+
+  --font-inter: "Inter", sans-serif;
+
+  --radius-30: 30px;
+  --radius-36: 36px;
+  --radius-48: 48px;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+}
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground: #000000;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
