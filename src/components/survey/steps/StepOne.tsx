@@ -3,9 +3,10 @@
 interface StepOneProps {
     email: string;
     onUpdate: (field: string, value: string) => void;
+    onBlur: () => void;
 }
 
-export function StepOne({ email, onUpdate }: StepOneProps) {
+export function StepOne({ email, onUpdate, onBlur }: StepOneProps) {
     return (
         <div className="flex flex-col gap-6">
             {/* Header */}
@@ -30,6 +31,7 @@ export function StepOne({ email, onUpdate }: StepOneProps) {
                     type="email"
                     value={email}
                     onChange={(e) => onUpdate("email", e.target.value)}
+                    onBlur={onBlur}
                     placeholder="your@email.com"
                     className="w-full h-[45px] rounded-[30px] border border-[#DDDDDD] px-5 text-[14px] font-inter text-black placeholder:text-[#BBBBBB] focus:border-brand-red focus:outline-none transition-colors"
                 />

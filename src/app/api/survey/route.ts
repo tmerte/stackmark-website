@@ -1,4 +1,14 @@
 import { NextResponse } from "next/server";
+import { promises as dns } from "dns";
+
+async function hasValidMx(domain: string): Promise<boolean> {
+    try {
+        const records = await dns.resolveMx(domain);
+        return records.length > 0;
+    } catch {
+        return false;
+    }
+}
 
 export async function POST(request: Request) {
     try {
@@ -11,7 +21,14 @@ export async function POST(request: Request) {
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+            return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+        }
+
+        // Check that the domain has MX records (can actually receive email)
+        const domain = email.split("@")[1];
+        const validMx = await hasValidMx(domain);
+        if (!validMx) {
+            return NextResponse.json({ error: "This email domain doesn't appear to accept emails. Please check for typos." }, { status: 400 });
         }
 
         const webhookUrl = process.env.SURVEY_WEBHOOK_URL;

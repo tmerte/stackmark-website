@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 import { StepOne } from "./steps/StepOne";
@@ -11,15 +11,44 @@ export function SurveyForm() {
     const [direction, setDirection] = useState(1);
     const [email, setEmail] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [domainValid, setDomainValid] = useState(false);
+    const [checking, setChecking] = useState(false);
+    const lastChecked = useRef("");
+
+    const emailFormatValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const canSubmit = emailFormatValid && domainValid && !isSubmitting && !checking;
 
     const updateField = useCallback((field: string, value: string) => {
-        if (field === "email") setEmail(value);
+        if (field === "email") {
+            setEmail(value);
+            if (value !== lastChecked.current) {
+                setDomainValid(false);
+            }
+        }
     }, []);
 
-    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const checkDomain = useCallback(async (value: string) => {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return;
+        if (value === lastChecked.current && domainValid) return;
+
+        setChecking(true);
+        try {
+            const res = await fetch("/api/check-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: value }),
+            });
+            const data = await res.json();
+            lastChecked.current = value;
+            setDomainValid(data.valid);
+        } catch {
+            setDomainValid(false);
+        }
+        setChecking(false);
+    }, [domainValid]);
 
     const handleSubmit = async () => {
-        if (!emailValid || isSubmitting) return;
+        if (!canSubmit) return;
         setIsSubmitting(true);
 
         try {
@@ -30,11 +59,12 @@ export function SurveyForm() {
             });
 
             if (!res.ok) {
-                const err = await res.json();
-                console.error("Submission error:", err);
+                setIsSubmitting(false);
+                return;
             }
-        } catch (err) {
-            console.error("Network error:", err);
+        } catch {
+            setIsSubmitting(false);
+            return;
         }
 
         setDirection(1);
@@ -63,7 +93,11 @@ export function SurveyForm() {
                         transition={{ duration: 0.25, ease: "easeInOut" }}
                     >
                         {step === 0 && (
-                            <StepOne email={email} onUpdate={updateField} />
+                            <StepOne
+                                email={email}
+                                onUpdate={updateField}
+                                onBlur={() => checkDomain(email)}
+                            />
                         )}
                         {step === 1 && <ThankYou />}
                     </motion.div>
@@ -81,15 +115,15 @@ export function SurveyForm() {
                     <div className="flex items-center justify-end mt-8 pt-4 border-t border-[#DDDDDD]">
                         <button
                             onClick={handleSubmit}
-                            disabled={!emailValid || isSubmitting}
+                            disabled={!canSubmit}
                             className={`flex items-center gap-2 bg-brand-red text-white rounded-[30px] h-[45px] px-6 text-[14px] font-semibold font-inter transition-opacity ${
-                                emailValid && !isSubmitting
+                                canSubmit
                                     ? "hover:opacity-90"
                                     : "opacity-40 cursor-not-allowed"
                             }`}
                         >
-                            {isSubmitting ? "Submitting..." : "Join Waitlist"}
-                            {!isSubmitting && <ArrowRight size={14} />}
+                            {isSubmitting ? "Submitting..." : checking ? "Checking..." : "Join Waitlist"}
+                            {!isSubmitting && !checking && <ArrowRight size={14} />}
                         </button>
                     </div>
                 </>
