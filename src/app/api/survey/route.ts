@@ -1,13 +1,23 @@
 import { NextResponse } from "next/server";
 import { promises as dns } from "dns";
 
-async function hasValidMx(domain: string): Promise<boolean> {
+async function domainExists(domain: string): Promise<boolean> {
     try {
-        const records = await dns.resolveMx(domain);
-        return records.length > 0;
-    } catch {
-        return false;
-    }
+        const mx = await dns.resolveMx(domain);
+        if (mx.length > 0) return true;
+    } catch { /* no MX */ }
+
+    try {
+        const a = await dns.resolve4(domain);
+        if (a.length > 0) return true;
+    } catch { /* no A records */ }
+
+    try {
+        const aaaa = await dns.resolve6(domain);
+        if (aaaa.length > 0) return true;
+    } catch { /* no AAAA records */ }
+
+    return false;
 }
 
 export async function POST(request: Request) {
@@ -24,11 +34,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
         }
 
-        // Check that the domain has MX records (can actually receive email)
         const domain = email.split("@")[1];
-        const validMx = await hasValidMx(domain);
-        if (!validMx) {
-            return NextResponse.json({ error: "This email domain doesn't appear to accept emails. Please check for typos." }, { status: 400 });
+        const valid = await domainExists(domain);
+        if (!valid) {
+            return NextResponse.json({ error: "Invalid email domain" }, { status: 400 });
         }
 
         const webhookUrl = process.env.SURVEY_WEBHOOK_URL;
