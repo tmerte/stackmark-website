@@ -45,7 +45,10 @@ export const Hero = () => {
                 {/* Bottom Caption (Node 1:176) - Optical 74px */}
                 <div className="relative z-10 mt-auto pl-6 md:pl-10 lg:pl-[74px] pb-8 lg:pb-[56px]">
                     <p className="text-white text-[16px] lg:text-[20px] font-semibold leading-[24px] lg:leading-[28px] font-inter tracking-[0px]">
-                        Built by <span className="text-brand-red">a designer</span> who had this exact problem.
+                        Surfaces your saved tutorials daily and tracks your completion rate.
+                    </p>
+                    <p className="text-white text-[16px] lg:text-[20px] font-semibold leading-[24px] lg:leading-[28px] font-inter tracking-[0px]">
+                        Guilt turns into momentum.
                     </p>
                 </div>
             </div>
