@@ -69,7 +69,7 @@ const AccordionItem = ({ number, title, content, isOpen, onClick }: AccordionIte
 
 export const ProcessSection = () => {
     const { openSurvey } = useSurvey();
-    const [openIndex, setOpenIndex] = useState<number | null>(1);
+    const [openIndex, setOpenIndex] = useState<number | null>(0);
 
     const items = [
         {
@@ -106,8 +106,7 @@ export const ProcessSection = () => {
             {/* Content Column */}
             <div className="px-6 md:px-10 lg:px-0 lg:ml-[446px] flex flex-col w-full lg:w-[630px] lg:shrink-0">
                 <div className="text-[#494949] text-[15px] lg:text-[16px] font-normal font-inter leading-[22px] lg:leading-[24px] tracking-[-0.32px] mb-12 lg:mb-[104px] w-full lg:w-[630px] pl-[50px] md:pl-[86px]">
-                    <p>StackMark surfaces your saved tutorials daily and tracks your completion rate.</p>
-                    <p>AI categorization. Daily reminders. Progress tracking. </p>
+                    <p>StackMark surfaces your saved tutorials daily and tracks your completion rate. AI categorization. Daily reminders. Progress tracking.</p>
                     <p className="mt-6">Built by a designer who had this exact problem.</p>
                 </div>
 
